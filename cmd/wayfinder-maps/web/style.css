@@ -20,7 +20,7 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #sky.drag{cursor:grabbing}
 
 /* Buttons share one shape: mono uppercase, 1px border, press down on click. */
-#backbtn,#openanother,#openfolder{display:inline-flex;align-items:center;gap:8px;
+#backbtn,#openanother,#openfolder{display:inline-flex;flex:none;align-items:center;gap:8px;
   font:500 11px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;
   padding:9px 13px;background:var(--panel);color:var(--ink);border:1px solid var(--border-strong);
   cursor:pointer;transition:border-color .15s,transform .08s,box-shadow .25s}
@@ -29,24 +29,109 @@ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 #openfolder{background:var(--accent);color:var(--on-accent);border-color:var(--accent);padding:11px 18px;font-size:12px}
 #openfolder:hover{box-shadow:0 0 0 1px var(--accent),0 0 22px rgba(var(--accent-rgb),.45)}
 
-/* HUD: a flat full-width bar along the bottom, out of the map's way. Slides
-   down and fades when a detail panel opens so the reader sees only the map. */
-#hud{position:fixed;left:0;right:0;bottom:0;z-index:5;
-  display:flex;align-items:center;gap:20px;padding:10px 20px;
-  background:var(--panel);border-top:1px solid var(--border);
-  transition:transform .24s cubic-bezier(.2,.7,.2,1),opacity .24s}
-body.panelopen #hud{transform:translateY(105%);opacity:0;pointer-events:none}
-#hud .htitle{min-width:110px;flex:0 1 auto;max-width:34%}
-#hud h1{font:700 14px/1.25 var(--font-title);letter-spacing:.06em;text-transform:uppercase;margin:0;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#hud h1::before{content:"\25A0  ";color:var(--accent)}
-#hud .dest{font-size:11px;color:var(--muted);line-height:1.35;margin-top:2px;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#hud .spacer{flex:1 1 auto}
-#hud .counts{display:flex;gap:6px;flex-wrap:nowrap}
-#hud .bar{width:150px;flex:0 0 auto;height:6px;background:var(--rule)}
-#hud .bar>span{display:block;height:100%;background:var(--good)}
+/* Map screen chrome: hidden until body.on-map (screens.js), then laid out
+   per view from body.view-map / view-hybrid / view-list (toolbar.js). --top is
+   the toolbar's height, kept current by main.js. */
+#top,#list,#hint{display:none}
+body.on-map #top{display:block}
+body.on-map.view-hybrid #list,body.on-map.view-list #list{display:block}
+body.on-map.view-map #hint{display:block}
 
+#top{position:fixed;top:0;left:0;right:0;z-index:7;background:var(--panel);border-bottom:1px solid var(--border)}
+#top .row1{display:flex;align-items:center;gap:16px;padding:10px 16px}
+#top .mtitle{flex:1 1 auto;min-width:0}
+#top .crumb{font:10px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mname{font:700 16px/1.2 var(--font-title);letter-spacing:.06em;text-transform:uppercase;margin:1px 0 0;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mname::before{content:"\25A0  ";color:var(--accent)}
+#mdest{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#top .prog{display:flex;align-items:center;gap:10px;font:11px var(--font-mono);color:var(--muted);white-space:nowrap}
+#top .bar{width:120px;height:6px;background:var(--rule)}
+#top .bar>span{display:block;height:100%;background:var(--good)}
+.seg{display:flex}
+.seg button{font:500 11px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;padding:9px 12px;
+  background:var(--bg);color:var(--muted);border:1px solid var(--border-strong);cursor:pointer}
+.seg button+button{border-left:none}
+.seg button:hover{color:var(--ink)}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.seg button:active{transform:translateY(1px)}
+
+#top .row2{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;padding:0 16px 10px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+#actchips{padding-left:14px;border-left:1px solid var(--border)}
+.fchip{display:inline-flex;align-items:center;gap:6px;font:11px/1 var(--font-mono);padding:6px 8px;
+  background:var(--bg);color:var(--ink);border:1px solid var(--border);cursor:pointer;transition:border-color .15s,background .15s}
+.fchip:hover{border-color:var(--border-strong)}
+.fchip .fcount{color:var(--muted);font-weight:500}
+.fchip.zero{opacity:.45}
+.fchip.on{border-color:var(--accent);background:rgba(var(--accent-rgb),.12)}
+.fchip.on .fcount{color:var(--accent)}
+.fchip:active{transform:translateY(1px)}
+.sq{display:inline-block;width:8px;height:8px;flex:none;background:var(--off)}
+.sq.frontier{background:var(--accent)}
+.sq.claimed{background:var(--warning)}
+.sq.resolved{background:var(--good)}
+.sq.blocked{background:transparent;border:1.5px solid var(--blocked)}
+.sq.oos{background:transparent;border:1.5px dashed var(--off)}
+#top .tools{display:flex;align-items:center;gap:8px;margin-left:auto}
+#shown{font:11px var(--font-mono);color:var(--muted);white-space:nowrap}
+#search{font:12px var(--font-mono);width:150px;background:var(--bg);color:var(--ink);border:1px solid var(--border);
+  border-radius:0;padding:6px 8px}
+#search:focus{outline:none;border-color:var(--accent)}
+#clearf{font:500 10px/1 var(--font-mono);text-transform:uppercase;letter-spacing:.1em;padding:7px 8px;
+  background:none;color:var(--muted);border:1px solid var(--border);cursor:pointer}
+#clearf:hover{color:var(--ink);border-color:var(--accent)}
+
+#lint{margin:0 16px 10px;font:11px var(--font-mono)}
+#lint summary{cursor:pointer;color:var(--ink);list-style:none;display:flex;align-items:center;gap:8px}
+#lint summary::-webkit-details-marker{display:none}
+#lint summary::before{content:"";width:8px;height:8px;background:var(--warning)}
+#lint summary.critical::before{background:var(--critical)}
+#lint summary::after{content:"show";color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:10px}
+#lint[open] summary::after{content:"hide"}
+#lint .lrows{margin-top:6px;max-height:140px;overflow:auto;border-top:1px solid var(--rule)}
+#lint .lrow{display:flex;gap:12px;padding:4px 0;border-bottom:1px solid var(--rule)}
+#lint .lfile{color:var(--muted);flex:0 0 auto;max-width:40%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lint .lrow.critical .lmsg{color:var(--critical)}
+
+/* The ticket list: right of the map in hybrid, the whole screen in list. */
+#list{position:fixed;top:var(--top,96px);bottom:0;right:0;z-index:5;overflow:auto;background:var(--bg);
+  padding:14px 16px 40px}
+/* In hybrid the ticket panel takes exactly the list's column, so it replaces
+   the list while open and the map stays whole. */
+body.view-hybrid #list,body.view-hybrid #panel{width:clamp(340px,38vw,560px)}
+body.view-hybrid #list{border-left:1px solid var(--border)}
+body.view-list #list{left:0}
+body.view-list .lcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px}
+body.view-hybrid .lcards{display:flex;flex-direction:column;gap:6px}
+.lsec{margin-bottom:18px}
+.lhead{display:flex;align-items:center;gap:8px;width:100%;padding:4px 0 8px;background:none;border:none;cursor:pointer;
+  font:500 10px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lhead .lcount{color:var(--ink)}
+.lhead::after{content:"hide";margin-left:auto;opacity:0;transition:opacity .15s}
+.lhead:hover::after{opacity:1}
+.lsec.shut .lhead::after{content:"show";opacity:1}
+.lsec.shut .lcards{display:none}
+.lempty{font:12px var(--font-mono);color:var(--muted);padding:12px 0}
+.tcard{display:block;width:100%;text-align:left;background:var(--panel);color:var(--ink);cursor:pointer;
+  border:1px solid var(--border);border-left:3px solid var(--off);padding:9px 12px 10px;
+  transition:border-color .15s,background .12s}
+.tcard:hover{background:rgba(var(--accent-rgb),.06);border-color:var(--border-strong)}
+.tcard.sel{border-color:var(--accent)}
+.tcard:active{transform:translateY(1px)}
+.tcard.s-frontier{border-left-color:var(--accent)}
+.tcard.s-claimed{border-left-color:var(--warning)}
+.tcard.s-resolved{border-left-color:var(--good)}
+.tcard.s-blocked{border-left-color:var(--blocked)}
+.tcard.s-resolved .ttitle,.tcard.s-oos .ttitle{color:#b7b4ab}
+.trow{display:flex;align-items:center;gap:8px;font:10px/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.trow .tnum{font-size:12px;font-weight:500;color:var(--ink);letter-spacing:0}
+.trow .tspace{flex:1}
+.trow .tmode{border:1px solid var(--border);padding:2px 5px}
+.trow .tund{color:var(--critical)}
+.ttitle{font-size:13px;line-height:1.4;margin:6px 0 5px}
+.tfoot{font:11px var(--font-mono);color:var(--muted)}
 /* .c is a status tag, shared by the HUD counts and the panel: a coloured
    square, then the word. Colour never stands alone. */
 .c{display:inline-flex;align-items:center;gap:6px;font:11px/1 var(--font-mono);
@@ -69,7 +154,7 @@ body.panelopen #hud{transform:translateY(105%);opacity:0;pointer-events:none}
 .tl{cursor:pointer}
 .tl:hover{border-color:var(--accent)}
 
-#panel{position:fixed;top:0;right:0;height:100%;width:min(440px,90vw);z-index:6;
+#panel{position:fixed;top:var(--top,0);right:0;bottom:0;width:min(440px,90vw);z-index:6;
   background:var(--panel);border-left:1px solid var(--border);
   transform:translateX(102%);transition:transform .22s cubic-bezier(.2,.7,.2,1);
   display:flex;flex-direction:column;padding:20px 22px}
@@ -108,13 +193,8 @@ body.panelopen #hud{transform:translateY(105%);opacity:0;pointer-events:none}
 #panel .md hr{border:none;border-top:1px solid var(--border);margin:14px 0}
 #panel .md blockquote{border-left:2px solid var(--border-strong);margin:9px 0;padding:2px 0 2px 12px;color:var(--muted)}
 
-#hint{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:5;
-  font:10px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-/* Top-left chrome in map view: the way back, then which project this map
-   belongs to. The HUD names the map, this names its home. */
-#topleft{position:fixed;top:12px;left:12px;z-index:7;display:none;align-items:center;gap:10px}
-#projtag{font:11px var(--font-mono);color:var(--muted);max-width:32vw;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hint{position:fixed;top:calc(var(--top,96px) + 12px);left:16px;z-index:4;
+  font:10px var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);white-space:nowrap;pointer-events:none}
 
 /* Loading: shown while a map's graph is being fetched. */
 #loading{position:fixed;inset:0;z-index:4;display:none;flex-direction:column;align-items:center;justify-content:center;gap:10px;
@@ -171,6 +251,16 @@ body.panelopen #hud{transform:translateY(105%);opacity:0;pointer-events:none}
 .card .cfront::before{content:"";display:inline-block;width:8px;height:8px;background:var(--accent);margin-right:6px}
 .card .cbar{height:4px;background:var(--rule)}
 .card .cbar>span{display:block;height:100%;background:var(--good)}
+
+/* Below 760px (NARROW in state.js) hybrid has no room: the Hybrid button goes
+   and the list shows alone. */
+@media (max-width:759px){
+  #viewseg [data-view=hybrid]{display:none}
+  #top .prog{display:none}
+  #actchips{padding-left:0;border-left:none}
+  #top .tools{margin-left:0;width:100%}
+  #search{flex:1}
+}
 
 @media (prefers-reduced-motion:reduce){
   .spin::before,.spin::after{animation-duration:3s}

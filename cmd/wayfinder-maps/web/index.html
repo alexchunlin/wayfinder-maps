@@ -9,8 +9,21 @@
 </head>
 <body>
 <canvas id="sky"></canvas>
-<div id="topleft"><button id="backbtn">All maps</button><span id="projtag"></span></div>
-<div id="hud"></div>
+<div id="top">
+  <div class="row1">
+    <button id="backbtn">All maps</button>
+    <div class="mtitle"><div class="crumb"><span id="projtag"></span></div><h1 id="mname"></h1><div id="mdest"></div></div>
+    <div class="prog"><span id="progtxt"></span><div class="bar"><span id="progbar"></span></div></div>
+    <div class="seg" id="viewseg"><button data-view="map">Map</button><button data-view="hybrid">Hybrid</button><button data-view="list">List</button></div>
+  </div>
+  <div class="row2">
+    <div class="chips" id="typechips"></div>
+    <div class="chips" id="actchips"></div>
+    <div class="tools"><span id="shown"></span><input id="search" type="search" placeholder="Filter tickets" autocomplete="off" spellcheck="false"><button id="clearf">Clear</button></div>
+  </div>
+  <details id="lint"><summary></summary><div class="lrows"></div></details>
+</div>
+<div id="list"></div>
 <div id="panel"><span class="x">&times;</span><h2></h2><div class="meta"></div><div class="md"></div></div>
 <div id="loading"><span class="spin"></span>Loading map</div>
 <div id="hint">drag to pan &middot; scroll to zoom &middot; click a ticket</div>

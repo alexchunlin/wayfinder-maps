@@ -1,10 +1,15 @@
 // The render loop and everything painted on the canvas: the survey grid,
 // dependency edges, status-coloured ticket markers, decluttered labels, the
 // camera easing, and the map fade-in/out transition.
-import {S, ctx, dpr} from "./state.js";
+import {S, ctx, dpr, effectiveView} from "./state.js";
 import {mod, clamp, hexA, pad2} from "./util.js";
 import {UI, LABELCOL, col} from "./theme.js";
 import {drawFog, drawFogLabels} from "./fog.js";
+import {matches} from "./filter.js";
+
+// DIM is the opacity of tickets (and their edges and labels) that fail the
+// current filters: still placed, so the map keeps its shape.
+var DIM = 0.14;
 
 var EASE = 0.28;    // cam eases toward goal each frame
 var POSEASE = 0.12; // node position tweening after a live update
@@ -52,6 +57,7 @@ function drawGrid(W, H) {
 // is dashed.
 function drawEdge(e) {
   var a = S.byNum[e.from], b = S.byNum[e.to]; if (!a || !b) return;
+  ctx.globalAlpha = S.mapAlpha * (matches(a) && matches(b) ? 1 : DIM);
   var ax = a._x, ay = a._y, bx = b._x, by = b._y;
   var dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
   ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by);
@@ -90,6 +96,7 @@ function brackets(x, y, h, k) {
 
 function drawNode(n) {
   var c = col(n), x = n._x, y = n._y;
+  ctx.globalAlpha = S.mapAlpha * (matches(n) ? 1 : DIM);
   var en = (n.enter != null) ? n.enter : 1; // 0..1 grow-in for a newly-added ticket
   var fl = n.flare || 0;                    // 1..0 burst on a status change
   var beat = 0.5 + 0.5 * Math.sin(S.clock * 2.8);
@@ -128,6 +135,7 @@ function drawNode(n) {
     ctx.setLineDash([]); ctx.lineDashOffset = 0;
   }
   if (S.selected === n) { ctx.strokeStyle = UI.accent; ctx.lineWidth = 2; brackets(x, y, h + 12, 6); }
+  else if (S.hover === n) { ctx.strokeStyle = UI.ink; ctx.lineWidth = 1.5; brackets(x, y, h + 12, 6); }
 }
 
 // drawLabels sets each ticket's label on a dark plate under its marker: the
@@ -141,8 +149,10 @@ function drawLabels(a) {
   // that box would collide with one already placed it is nudged down (then up)
   // until it clears. Deterministic order (nodes are number-sorted) keeps it stable.
   var placed = [], h = fs + 4, step = h + 2, tries = [0, step, -step, 2 * step, -2 * step, 3 * step];
+  var a0 = a;
   S.nodes.forEach(function(n) {
     var s = w2s(n), c = col(n);
+    a = a0 * (matches(n) ? 1 : DIM);
     var num = pad2(n.num), title = "";
     if (!numOnly) title = "  " + (n.title.length > 30 ? n.title.slice(0, 29) + "…" : n.title);
     ctx.font = "500 " + fs.toFixed(1) + "px " + UI.mono;
@@ -198,6 +208,9 @@ export function render() {
   }
   var zt = 0.95 + 0.05 * S.mapAlpha, Cx = W / 2, Cy = H / 2;
   S.ec.s = S.cam.s * zt; S.ec.x = Cx + (S.cam.x - Cx) * zt; S.ec.y = Cy + (S.cam.y - Cy) * zt;
+  // List view hides the canvas; keep the clock and camera running but skip
+  // the painting.
+  if (effectiveView() === "list" && S.screen === "map") { requestAnimationFrame(render); return; }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.fillStyle = UI.bg; ctx.fillRect(0, 0, W, H);
   drawGrid(W, H); // the grid never fades

@@ -153,6 +153,15 @@ type graphDoc struct {
 	Nodes       []nodeDoc `json:"nodes"`
 	Edges       []edgeDoc `json:"edges"`
 	Fog         []fogDoc  `json:"fog"`
+	Lint        []lintDoc `json:"lint"`
+}
+
+// lintDoc is one `wayfinder-maps lint` finding, shown in the viewer's lint
+// strip. File is relative to the effort dir.
+type lintDoc struct {
+	Level string `json:"level"` // error|warn
+	File  string `json:"file"`
+	Msg   string `json:"msg"`
 }
 
 type countsDoc struct {
@@ -171,8 +180,11 @@ type nodeDoc struct {
 	Rank       int    `json:"rank"`
 	Undermined bool   `json:"undermined"`
 	ClaimedBy  string `json:"claimedBy,omitempty"`
-	Blockers   []int  `json:"blockers"`
-	Body       string `json:"body"`
+	ClaimedAt  string `json:"claimedAt,omitempty"`
+	// UnderminedBy names the tickets that broke this one's premise.
+	UnderminedBy []int  `json:"underminedBy,omitempty"`
+	Blockers     []int  `json:"blockers"`
+	Body         string `json:"body"`
 }
 
 type edgeDoc struct {
@@ -236,15 +248,17 @@ func buildGraph(e *wayfinder.Effort) graphDoc {
 
 	for _, t := range e.Tickets {
 		g.Nodes = append(g.Nodes, nodeDoc{
-			Num:        t.Num,
-			Title:      t.Title,
-			Type:       string(t.Type),
-			Status:     displayStatus(t, frontier),
-			Rank:       rank[t.Num],
-			Undermined: len(t.UnderminedBy) > 0,
-			ClaimedBy:  t.ClaimedBy,
-			Blockers:   t.BlockedBy,
-			Body:       ticketBody(t.Path),
+			Num:          t.Num,
+			Title:        t.Title,
+			Type:         string(t.Type),
+			Status:       displayStatus(t, frontier),
+			Rank:         rank[t.Num],
+			Undermined:   len(t.UnderminedBy) > 0,
+			ClaimedBy:    t.ClaimedBy,
+			ClaimedAt:    t.ClaimedAt,
+			UnderminedBy: t.UnderminedBy,
+			Blockers:     t.BlockedBy,
+			Body:         ticketBody(t.Path),
 		})
 		for _, b := range t.BlockedBy {
 			satisfied := false
@@ -257,6 +271,14 @@ func buildGraph(e *wayfinder.Effort) graphDoc {
 
 	for _, f := range e.Map.Fog {
 		g.Fog = append(g.Fog, fogDoc{Title: f.Title, ClearsWith: f.ClearsWith})
+	}
+
+	for _, d := range wayfinder.Lint(e, wayfinder.DefaultOptions()) {
+		file := d.File
+		if r, err := filepath.Rel(e.Dir, d.File); err == nil {
+			file = r
+		}
+		g.Lint = append(g.Lint, lintDoc{Level: d.Level.String(), File: file, Msg: d.Msg})
 	}
 	return g
 }

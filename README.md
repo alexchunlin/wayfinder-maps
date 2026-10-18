@@ -231,6 +231,12 @@ It starts `wayfinder-maps serve` in the background if port 7777 is free and open
 `http://localhost:7777/?path=<path>` in the current Orca worktree. One server backs every
 tab, because each tab names its own project with `?path=`. The
 [`wayfinder-orca`](skills/wayfinder-orca/SKILL.md) skill tells an agent how to use it,
+The page has three views, switched with the buttons at top right or the keys 1, 2
+and 3: the map, the map beside a list of ticket cards, and the cards alone. The chips
+above filter by type and by actionability (takeable, need you, agent-ready, in
+progress, blocked, resolved), `/` focuses the search box, and the strip below shows
+what `lint` finds.
+
 The `owner/repo#N` form mirrors a GitHub-issue map into `~/.cache` with
 `wayfinder-pull` and opens that copy; `--every` re-pulls it on a timer.
 
