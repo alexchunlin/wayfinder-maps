@@ -221,6 +221,12 @@ scripts/wayfinder-orca [path]
 scripts/wayfinder-orca [--every SECS] owner/repo#N
 ```
 
+To use it from any project, link it onto your PATH:
+
+```
+ln -s "$PWD/scripts/wayfinder-orca" ~/.local/bin/
+```
+
 It starts `wayfinder-maps serve` in the background if port 7777 is free and opens
 `http://localhost:7777/?path=<path>` in the current Orca worktree. One server backs every
 tab, because each tab names its own project with `?path=`. The

@@ -21,7 +21,8 @@ port=${PORT:-7777}
 orca=${ORCA_CLI_COMMAND:-orca}
 worktree=${ORCA_WORKTREE:-active}
 
-here=$(cd "$(dirname "$0")" && pwd)
+# Resolve symlinks so a link on PATH still finds wayfinder-pull beside the real file.
+here=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)
 
 every=
 if [ "${1:-}" = "--every" ]; then

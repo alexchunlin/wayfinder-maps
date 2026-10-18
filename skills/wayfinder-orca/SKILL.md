@@ -1,19 +1,21 @@
 ---
 name: wayfinder-orca
-description: Show a wayfinder map as a star-map in a tab of Orca's built-in browser. Use when the user asks to show, open, view, render or refresh a wayfinder map (or "the map", "the plan") inside Orca, whether the map lives in a local .plan/ folder or in GitHub issues.
+description: Show a wayfinder map in a tab of Orca's built-in browser. Use when the user asks to show, open, view, render or refresh a wayfinder map (or "the map", "the plan") inside Orca, whether the map lives in a local .plan/ folder or in GitHub issues.
 ---
 
 # Wayfinder map in Orca
 
-`scripts/wayfinder-orca` sits two levels above this file, at the root of the wayfinder-maps repo. It starts `wayfinder-maps serve` in the background if nothing answers on port 7777, then opens a tab in the current Orca worktree at `http://localhost:7777/?path=<dir>`. If a tab already shows that URL, the script switches to it. It prints the URL.
+Run `wayfinder-orca`; it is on PATH. If the shell can't find it, it lives at `scripts/wayfinder-orca` in the wayfinder-maps clone (`/Users/alxchunlin/code-stuff/wayfinder-maps` on Alex's machine). It starts `wayfinder-maps serve` in the background if nothing answers on port 7777, then opens a tab in Orca's built-in browser, in the current worktree, at `http://localhost:7777/?path=<dir>`. If a tab already shows that URL, the script switches to it. It prints the URL.
+
+After it runs, tell the user the map is open in the Orca browser tab titled "wayfinder-maps" in this worktree.
 
 The page polls the files on disk, so the open tab redraws after you edit a ticket. Do not reopen it.
 
 ## Map in a local `.plan/`
 
 ```sh
-<repo>/scripts/wayfinder-orca            # enclosing git repo: list of its maps
-<repo>/scripts/wayfinder-orca .plan/foo  # one effort: straight to its map
+wayfinder-orca            # enclosing git repo: list of its maps
+wayfinder-orca .plan/foo  # one effort: straight to its map
 ```
 
 ## Map kept as GitHub issues
@@ -21,8 +23,8 @@ The page polls the files on disk, so the open tab redraws after you edit a ticke
 Find the map issue with `gh issue list -l wayfinder:map --state all`, then pass it as `owner/repo#N`:
 
 ```sh
-<repo>/scripts/wayfinder-orca alexchunlin/harnessy#29
-<repo>/scripts/wayfinder-orca --every 120 alexchunlin/harnessy#29
+wayfinder-orca alexchunlin/harnessy#29
+wayfinder-orca --every 120 alexchunlin/harnessy#29
 ```
 
 The script mirrors the map with `wayfinder-pull` into `~/.cache/wayfinder-maps/<owner>-<repo>/.plan/<N>`, outside the working tree, and opens that copy. `--every SECS` keeps re-pulling in the background so the tab follows the tracker. Rerunning the command for the same map replaces the old loop, and running it without `--every` stops the loop. Each pull is swapped in whole, so the tab never shows half a map.
