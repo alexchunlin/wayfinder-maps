@@ -218,13 +218,15 @@ has no GitHub representation, so a mirrored map never paints an undermined node.
 
 ```
 scripts/wayfinder-orca [path]
+scripts/wayfinder-orca [--every SECS] owner/repo#N
 ```
 
 It starts `wayfinder-maps serve` in the background if port 7777 is free and opens
 `http://localhost:7777/?path=<path>` in the current Orca worktree. One server backs every
 tab, because each tab names its own project with `?path=`. The
 [`wayfinder-orca`](skills/wayfinder-orca/SKILL.md) skill tells an agent how to use it,
-including mirroring a GitHub-issue map into `~/.cache` first.
+The `owner/repo#N` form mirrors a GitHub-issue map into `~/.cache` with
+`wayfinder-pull` and opens that copy; `--every` re-pulls it on a timer.
 
 ## Build from source
 

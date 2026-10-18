@@ -18,15 +18,14 @@ The page polls the files on disk, so the open tab redraws after you edit a ticke
 
 ## Map kept as GitHub issues
 
-Find the map issue with `gh issue list -l wayfinder:map --state all`. Mirror it into a cache outside the repo so nothing lands in the working tree, then open the cache:
+Find the map issue with `gh issue list -l wayfinder:map --state all`, then pass it as `owner/repo#N`:
 
 ```sh
-cache="${XDG_CACHE_HOME:-$HOME/.cache}/wayfinder-maps/<owner>-<repo>/.plan/<map-number>"
-<repo>/scripts/wayfinder-pull <owner>/<repo> <map-number> "$cache"
-<repo>/scripts/wayfinder-orca "$cache"
+<repo>/scripts/wayfinder-orca alexchunlin/harnessy#29
+<repo>/scripts/wayfinder-orca --every 120 alexchunlin/harnessy#29
 ```
 
-`wayfinder-pull` wipes and rewrites the cache on every run. To refresh the map after the tracker changes, run the pull again; the tab picks it up on its next poll.
+The script mirrors the map with `wayfinder-pull` into `~/.cache/wayfinder-maps/<owner>-<repo>/.plan/<N>`, outside the working tree, and opens that copy. `--every SECS` keeps re-pulling in the background so the tab follows the tracker. Rerunning the command for the same map replaces the old loop, and running it without `--every` stops the loop. Each pull is swapped in whole, so the tab never shows half a map.
 
 ## Outside the current worktree
 

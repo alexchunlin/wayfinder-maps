@@ -163,7 +163,9 @@ function projectName(effort) {
 export function loadMap(effort) {
   S.currentEffort = effort; S.lastVersion = null; S.selected = null;
   document.getElementById("projtag").textContent = projectName(effort);
+  var spin = document.getElementById("loading"); spin.style.display = "flex";
   fetch("/api/graph?effort=" + encodeURIComponent(effort)).then(function(r) { return r.json(); }).then(function(g) {
-    applyGraph(g); setScreen("map"); startFade(0, 1, 2.2); // dissolve the constellation in
-  });
+    spin.style.display = "none";
+    applyGraph(g); setScreen("map"); startFade(0, 1, 2.2); // dissolve the map in
+  }).catch(function() { spin.style.display = "none"; });
 }

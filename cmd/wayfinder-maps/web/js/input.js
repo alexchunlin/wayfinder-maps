@@ -1,4 +1,4 @@
-// Camera interaction: drag to pan, scroll to zoom, click to select a star.
+// Camera interaction: drag to pan, scroll to zoom, click to select a ticket.
 // All input moves the camera GOAL; the render loop eases the camera toward it.
 import {S, canvas} from "./state.js";
 import {clamp} from "./util.js";

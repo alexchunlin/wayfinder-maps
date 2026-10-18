@@ -2,7 +2,7 @@
 // top-level buttons, and open whatever /api/initial points at (the page URL's
 // ?path= wins over the path serve was started with).
 import {S, canvas, dpr} from "./state.js";
-import {initStars, render} from "./draw.js";
+import {render} from "./draw.js";
 import "./input.js"; // wires pan/zoom/click on the canvas
 import "./panel.js"; // wires the panel close button and cross-ticket links
 import {startPolling, showSplash, openProject, loadMap, leaveMap} from "./screens.js";
@@ -21,7 +21,7 @@ document.getElementById("backbtn").onclick = function() {
   leaveMap(function() { if (S.lastProject) openProject(S.lastProject); else showSplash(); });
 };
 
-resize(); initStars(); render(); startPolling();
+resize(); render(); startPolling();
 fetch("/api/initial" + location.search).then(function(r) { return r.json(); }).then(function(init) {
   if (init.effort) loadMap(init.effort);
   else if (init.project) openProject(init.project);
