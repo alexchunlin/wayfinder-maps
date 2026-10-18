@@ -211,6 +211,21 @@ The mirror is one-directional and is a snapshot: claiming or resolving in the vi
 nothing in the tracker, and a change made there shows up on the next pull. `undermined_by`
 has no GitHub representation, so a mirrored map never paints an undermined node.
 
+## In Orca's built-in browser
+
+[`scripts/wayfinder-orca`](scripts/wayfinder-orca) opens a map in a tab of
+[Orca](https://github.com/stablyai/orca)'s embedded browser, next to the agent working on it.
+
+```
+scripts/wayfinder-orca [path]
+```
+
+It starts `wayfinder-maps serve` in the background if port 7777 is free and opens
+`http://localhost:7777/?path=<path>` in the current Orca worktree. One server backs every
+tab, because each tab names its own project with `?path=`. The
+[`wayfinder-orca`](skills/wayfinder-orca/SKILL.md) skill tells an agent how to use it,
+including mirroring a GitHub-issue map into `~/.cache` first.
+
 ## Build from source
 
 ```

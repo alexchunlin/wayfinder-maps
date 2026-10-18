@@ -1,5 +1,6 @@
 // Boot: size the canvas, start the render loop and the poller, wire the
-// top-level buttons, and open whatever /api/initial points at.
+// top-level buttons, and open whatever /api/initial points at (the page URL's
+// ?path= wins over the path serve was started with).
 import {S, canvas, dpr} from "./state.js";
 import {initStars, render} from "./draw.js";
 import "./input.js"; // wires pan/zoom/click on the canvas
@@ -21,7 +22,7 @@ document.getElementById("backbtn").onclick = function() {
 };
 
 resize(); initStars(); render(); startPolling();
-fetch("/api/initial").then(function(r) { return r.json(); }).then(function(init) {
+fetch("/api/initial" + location.search).then(function(r) { return r.json(); }).then(function(init) {
   if (init.effort) loadMap(init.effort);
   else if (init.project) openProject(init.project);
   else showSplash();

@@ -62,8 +62,14 @@ func newServer(initial string) http.Handler {
 	})
 
 	// Where the app should open: {effort} jumps to a map, {project} to a list.
+	// A ?path= on the page URL overrides the CLI path, so one server can open
+	// any project in its own tab (e.g. one per Orca worktree).
 	mux.HandleFunc("/api/initial", func(w http.ResponseWriter, r *http.Request) {
-		effort, project := initialKind(initial)
+		path := initial
+		if p := r.URL.Query().Get("path"); p != "" {
+			path = p
+		}
+		effort, project := initialKind(path)
 		writeJSON(w, map[string]string{"effort": effort, "project": project})
 	})
 
