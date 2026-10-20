@@ -5,7 +5,7 @@ description: Show a wayfinder map in a tab of Orca's built-in browser. Use when 
 
 # Wayfinder map in Orca
 
-Run `wayfinder-orca`; it is on PATH. If the shell can't find it, it lives at `scripts/wayfinder-orca` in the wayfinder-maps clone (`/Users/alxchunlin/code-stuff/wayfinder-maps` on Alex's machine). It starts `wayfinder-maps serve` in the background if nothing answers on port 7777, then opens a tab in Orca's built-in browser, in the current worktree, at `http://localhost:7777/?path=<dir>`. If a tab already shows that URL, the script switches to it. It prints the URL.
+Run `wayfinder-orca`; it is on PATH. If the shell can't find it, run it from the wayfinder-maps clone this skill is linked from, at `../../scripts/wayfinder-orca` relative to this skill's directory. It starts `wayfinder-maps serve` in the background if nothing answers on port 7777, then opens a tab in Orca's built-in browser, in the current worktree, at `http://localhost:7777/?path=<dir>`. If a tab already shows that URL, the script switches to it. It prints the URL.
 
 After it runs, tell the user the map is open in the Orca browser tab titled "wayfinder-maps" in this worktree.
 
@@ -23,8 +23,8 @@ wayfinder-orca .plan/foo  # one effort: straight to its map
 Find the map issue with `gh issue list -l wayfinder:map --state all`, then pass it as `owner/repo#N`:
 
 ```sh
-wayfinder-orca alexchunlin/harnessy#29
-wayfinder-orca --every 120 alexchunlin/harnessy#29
+wayfinder-orca acme/app#29
+wayfinder-orca --every 120 acme/app#29
 ```
 
 The script mirrors the map with `wayfinder-pull` into `~/.cache/wayfinder-maps/<owner>-<repo>/.plan/<N>`, outside the working tree, and opens that copy. `--every SECS` keeps re-pulling in the background so the tab follows the tracker. Rerunning the command for the same map replaces the old loop, and running it without `--every` stops the loop. Each pull is swapped in whole, so the tab never shows half a map.

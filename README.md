@@ -39,8 +39,7 @@ Fog: 5 patches, 1 anchored to a ticket
 
 ## Wayfinder maps in Orca
 
-This fork ([alexchunlin/wayfinder-maps](https://github.com/alexchunlin/wayfinder-maps),
-branch `orca-panel`) opens a wayfinder map in a tab of Orca's built-in browser, beside the
+`wayfinder-orca` opens a wayfinder map in a tab of Orca's built-in browser, beside the
 agent working on it. Tested on macOS.
 
 ### Install
@@ -54,11 +53,11 @@ You need Orca and Homebrew. Setup takes about five minutes.
    gh auth login
    ```
 
-2. Clone this fork and build the viewer. `go install` puts `wayfinder-maps` in
+2. Clone this repo and build the viewer. `go install` puts `wayfinder-maps` in
    `~/go/bin`; the launcher looks there, so it doesn't need to be on your PATH.
 
    ```
-   git clone -b orca-panel https://github.com/alexchunlin/wayfinder-maps.git ~/code/wayfinder-maps
+   git clone https://github.com/rengwu/wayfinder-maps.git ~/code/wayfinder-maps
    cd ~/code/wayfinder-maps
    go install ./cmd/wayfinder-maps
    ```
